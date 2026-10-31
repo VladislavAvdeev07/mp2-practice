@@ -28,7 +28,9 @@ public:
     this->size = st.size;
     this->top_ind = st.top_ind;
     this->pMem = new T[size];
-    for (int i = 0; i < size; i++) pMem[i] = st.pMem[i];
+    if (top_ind != -1)
+    for (int i = 0; i <= top_ind; i++) 
+      pMem[i] = st.pMem[i];
   }
   TStack(TStack<T>&& st) noexcept {
     this->size = st.size;
