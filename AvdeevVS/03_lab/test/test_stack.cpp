@@ -1,13 +1,13 @@
 #include "stack.h"
 
-#include <gtest\gtest.h>
+#include <gtest/gtest.h>
 
 TEST(TStack, can_create_stack_with_positive_length)
 {
   ASSERT_NO_THROW(TStack<int> st(5));
 }
 
-TEST(TStackr, cant_create_too_large_stack)
+TEST(TStack, cant_create_too_large_stack)
 {
   ASSERT_ANY_THROW(TStack<int> st(MAX_STACK_SIZE + 1));
 }
@@ -67,7 +67,7 @@ TEST(TStack, compare_equal_stacks_return_true)
 {
   TStack<int> st1(3), st2(3);
   st1.push(0), st1.push(1), st1.push(3);
-  st2.push(1), st2.push(2), st2.push(4);
+  st2.push(0), st2.push(1), st2.push(3);
   EXPECT_TRUE(st1 == st2);
 }
 
