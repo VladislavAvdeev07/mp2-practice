@@ -13,15 +13,29 @@ class ArExpression {
 
   string expr;
 
-  bool Mathematically_Correct(const string&);
+  bool Mathematically_Correct(const string&) const;
 
 public:
   explicit ArExpression(const string&);
   //bool operator==(const ArExpression& ae) const noexcept;
-  const string& GetPostfix() const;
+  string GetPostfix() const;
   double Compute(const vector<pair<char, double>>&) const;
-  friend std::istream& operator>>(std::istream& in, ArExpression& ae);
-  friend std::ostream& operator<<(std::ostream& out, const ArExpression& ae);
+  friend istream& operator>>(istream& in, ArExpression& ae) {
+    string s;
+    if (getline(in, s)) {
+      try {
+        ae = ArExpression(s);
+      }
+      catch (const invalid_argument& e) {
+        in.setstate(ios::failbit);
+      }
+    }
+    return in;
+  }
+  friend ostream& operator<<(ostream& out, const ArExpression& ae) {
+    out << ae.expr;
+    return out;
+  };
 };
 
 #endif __POSTFIX_FORM_H__

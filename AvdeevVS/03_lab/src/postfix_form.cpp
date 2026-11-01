@@ -1,6 +1,6 @@
 #include "postfix_form.h"
 
-bool ArExpression::Mathematically_Correct(const string& s) {
+bool ArExpression::Mathematically_Correct(const string& s) const {
   if (s.empty()) return false;
   if (s.size() == 1 && !isalpha(s[0])) return false;
   TStack<char> bracket(s.size());
@@ -48,4 +48,41 @@ ArExpression::ArExpression(const string& s) {
   }
   if (!Mathematically_Correct(s_clean)) throw invalid_argument("The expression is mathematically incorrect");
   this->expr = s_clean;
+}
+
+string ArExpression::GetPostfix() const {
+  string pf;
+  pf.reserve(expr.size());
+  TStack<char> oper(expr.size());
+  for (int i = 0; i < expr.size(); i++) {
+    if (isalpha(expr[i])) pf += expr[i];
+    if (expr[i] == '(') oper.push(expr[i]);
+    if (expr[i] == '+' || expr[i] == '-') {
+      while (!oper.is_empty() && (oper.top() == '*' || oper.top() == '/'||
+        oper.top() == '+' || oper.top() == '-')) {
+        pf += oper.top();
+        oper.pop();
+      }
+      oper.push(expr[i]);
+    }
+    if (expr[i] == ')') {
+      while (!oper.is_empty() && oper.top() != '(') {
+        pf += oper.top();
+        oper.pop();
+      }
+      if (!oper.is_empty() && oper.top() == '(') oper.pop();
+    }
+    if (expr[i] == '*' || expr[i] == '/') {
+      while (!oper.is_empty() && (oper.top() == '*' || oper.top() == '/')) {
+        pf += oper.top();
+        oper.pop();
+      }
+      oper.push(expr[i]);
+    }
+  }
+  while (!oper.is_empty()) {
+    pf += oper.top();
+    oper.pop();
+   }
+  return pf;
 }
