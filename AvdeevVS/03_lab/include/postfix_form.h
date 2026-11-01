@@ -9,15 +9,16 @@
 
 using namespace std;
 
+void Vector_Filling(vector<pair<char, double>>&);
+
+bool Mathematically_Correct(const string&);
+
 class ArExpression {
 
   string expr;
 
-  bool Mathematically_Correct(const string&) const;
-
 public:
   explicit ArExpression(const string&);
-  //bool operator==(const ArExpression& ae) const noexcept;
   string GetPostfix() const;
   double Compute(const vector<pair<char, double>>&) const;
   friend istream& operator>>(istream& in, ArExpression& ae) {

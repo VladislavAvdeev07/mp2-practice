@@ -1,6 +1,6 @@
 #include "postfix_form.h"
 
-bool ArExpression::Mathematically_Correct(const string& s) const {
+bool Mathematically_Correct(const string& s)  {
   if (s.empty()) return false;
   if (s.size() == 1 && !isalpha(s[0])) return false;
   TStack<char> bracket(s.size());
@@ -85,4 +85,61 @@ string ArExpression::GetPostfix() const {
     oper.pop();
    }
   return pf;
+}
+
+void Vector_Filling(vector<pair<char, double>>& vp) {
+  char c;
+  double d;
+  pair<char, double> p;
+  while (cin >> c >> d) {
+    p = { toupper(c), d };
+    vp.push_back(p);
+  }
+}
+
+double ArExpression::Compute(const vector<pair<char, double>>& v) const {
+  if (v.size() == 0) throw invalid_argument("Vector of meanings is empty");
+  for (int i = 0; i < v.size(); i++) {
+    for (int j = 0; j < v.size(); j++) {
+      if (v[i].first == v[j].first && i != j) throw invalid_argument("Ambiguous meanings for expression");
+    }
+  }
+  TStack<double> st(expr.size());
+  string pfex = GetPostfix();
+  for (int i = 0; i < pfex.size(); i++) {
+    if (isalpha(pfex[i]))
+      for (int j = 0; j < v.size(); j++) {
+        if (v[j].first == pfex[i]) {
+          st.push(v[j].second);
+          break;
+        }
+        if(j==v.size()-1) throw invalid_argument("There is no required value");
+      }
+    else {
+      double arg1, arg2; 
+      arg2 = st.top();
+      if (!st.is_empty()) st.pop();
+      arg1 = st.top();
+      if (!st.is_empty()) st.pop();
+      switch (pfex[i]) {
+        case '+':
+          st.push(arg1 + arg2);
+        break;
+        case '-':
+         st.push(arg1 - arg2);
+          break;
+        case '*':
+          st.push(arg1 * arg2);
+          break;
+        case '/':
+          if(arg2 == 0.0) throw domain_error("Division by zero");
+          st.push(arg1 / arg2);
+         break;
+        default:
+          throw invalid_argument("Unknown operation");
+         break;
+        }
+    }
+  }
+  return st.top();
 }
