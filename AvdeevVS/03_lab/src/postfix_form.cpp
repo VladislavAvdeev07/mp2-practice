@@ -4,7 +4,7 @@ bool Mathematically_Correct(const string& s)  {
   if (s.empty()) return false;
   if (s.size() == 1 && !isalpha(s[0])) return false;
   TStack<char> bracket(s.size());
-  string operation = "+-*/";
+  string operation = "+-*/";  //unarnii minus will be banned
   string br = "()";
   for (int i = 0; i < s.size(); i++) {      //bracketed sequence
     if (!isalpha(s[i])&&(operation.find(s[i]) == string::npos)&& (br.find(s[i]) == string::npos))
@@ -27,10 +27,6 @@ bool Mathematically_Correct(const string& s)  {
     if (isalpha(s[i]) && s[i+1] == '(') return false;
     if (s[i] == ')' && isalpha(s[i + 1])) return false;
    }
-  if (s.size()>2)
-  for (int i = 0; i < s.size() - 2; i++) {  
-    if (s[i] == '(' && s[i + 1] == '-' && s[i + 2] == ')') return false;
-  }
   //------------------------------------
   if ((operation.find(s[0]) != string::npos) && s[0] != '-') return false; //front and back of s
   if (operation.find(s[s.size()-1]) != string::npos) return false;
