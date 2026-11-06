@@ -10,6 +10,8 @@
 
 using namespace std;
 
+bool isoperation(char);
+
 void Vector_Filling(vector<pair<char, double>>&);
 
 bool Mathematically_Correct(const string&);

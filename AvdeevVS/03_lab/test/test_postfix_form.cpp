@@ -44,15 +44,39 @@ TEST(ArExpression, the_value_of_expression_is_correct)
   ASSERT_EQ(ae.Compute(fill),13.0);
 }
 //тесты на внешние функции 
-TEST(ArExpression, correct_expression_return_true)
+TEST(Mathematically_Correct, can_check_expression_for_correctness)
+{
+  string s = "A+B-C";
+  ASSERT_NO_THROW(Mathematically_Correct(s));
+}
+
+TEST(Mathematically_Correct, correct_expression_return_true)
 {
   string s = "A+B-C";
   ASSERT_TRUE(Mathematically_Correct(s));
 }
 
-TEST(ArExpression, uncorrect_expression_return_false)
+TEST(Mathematically_Correct, uncorrect_expression_return_false)
 {
   string s = "(A+B-C))";
   ASSERT_FALSE(Mathematically_Correct(s));
+}
+
+TEST(isoperation, can_check_character_for_operations)
+{
+  char c = '+';
+  ASSERT_NO_THROW(isoperation(c));
+}
+
+TEST(isoperation, checking_positive_character_return_true)
+{
+  char c = '+';
+  ASSERT_TRUE(isoperation(c));
+}
+
+TEST(isoperation, checking_negative_character_return_false)
+{
+  char c = '~';
+  ASSERT_FALSE(isoperation(c));
 }
 

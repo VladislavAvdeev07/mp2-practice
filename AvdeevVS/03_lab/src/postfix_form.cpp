@@ -1,14 +1,19 @@
 #include "postfix_form.h"
 
+bool isoperation(char c) {
+  string operation = "+-*/";
+  return operation.find(c) != string::npos;
+}
+
 bool Mathematically_Correct(const string& s)  {
   if (s.empty()) return false;
   if (s.size() == 1 && !isalpha(s[0])) return false;
   TStack<char> bracket(s.size());
-  string operation = "+-*/";  //unarnii minus will be banned
   string br = "()";
   for (int i = 0; i < s.size(); i++) {      //bracketed sequence
-    if (!isalpha(s[i])&&(operation.find(s[i]) == string::npos)&& (br.find(s[i]) == string::npos))
+    if (!isalpha(s[i])&&(!isoperation(s[i])) && (br.find(s[i]) == string::npos))
       return false;
+
     if (s[i] == '(') bracket.push(s[i]);
     if (s[i] == ')') {
       if (bracket.is_empty()) return false;
@@ -17,19 +22,18 @@ bool Mathematically_Correct(const string& s)  {
   }
   if (!bracket.is_empty()) return false;
   //------------------------------------
-  for (int i = 0; i < s.size()-1; i++) {    //two operations or operands in a row, () and +),-),*),/),(+,(*,(/
-    if ((operation.find(s[i]) != string::npos) && (operation.find(s[i + 1]) != string::npos))
-       return false;
-    if(isalpha(s[i])&& isalpha(s[i+1])) return false;
+  for (int i = 0; i < s.size()-1; i++) {    // AA | ++ | -- | ** | // | () | +) | -) | *) | /) | (+ | (* | (/
+    if (isoperation(s[i]) && isoperation(s[i+1])) return false;
+    if (isalpha(s[i])&& isalpha(s[i+1])) return false;
     if (s[i] == '(' && s[i + 1] == ')') return false;
-    if ((operation.find(s[i]) != string::npos) && s[i + 1] == ')') return false;
-    if (s[i] == '(' && (operation.find(s[i+1]) != string::npos) && s[i+1]!='-') return false;
+    if (isoperation(s[i]) && s[i + 1] == ')') return false;
+    if (s[i] == '(' && isoperation(s[i + 1]) && s[i+1]!='-') return false;
     if (isalpha(s[i]) && s[i+1] == '(') return false;
     if (s[i] == ')' && isalpha(s[i + 1])) return false;
    }
   //------------------------------------
-  if ((operation.find(s[0]) != string::npos) && s[0] != '-') return false; //front and back of s
-  if (operation.find(s[s.size()-1]) != string::npos) return false;
+  if (isoperation(s[0]) && s[0] != '-') return false; //front and back of s
+  if (isoperation(s[s.size()-1])) return false;
   return true;
 }
 
@@ -47,33 +51,39 @@ ArExpression::ArExpression(const string& s) {
 }
 
 string ArExpression::GetPostfix() const {
+  string umexpr = expr;
+  if (umexpr[0] == '-') umexpr = '0' + umexpr; //unary minus
+  for (int i = 0; i < umexpr.size() - 1; i++) {
+    if (umexpr[i] == '(' && umexpr[i + 1] == '-') umexpr.insert(i + 1, "0");
+  }
+
   string pf;
-  pf.reserve(expr.size());
-  TStack<char> oper(expr.size());
-  for (int i = 0; i < expr.size(); i++) {
-    if (isalpha(expr[i])) pf += expr[i];
-    if (expr[i] == '(') oper.push(expr[i]);
-    if (expr[i] == '+' || expr[i] == '-') {
+  pf.reserve(umexpr.size());
+  TStack<char> oper(umexpr.size());
+  for (int i = 0; i < umexpr.size(); i++) {
+    if (isalpha(umexpr[i]) || isdigit(umexpr[i])) pf += umexpr[i];
+    if (umexpr[i] == '(') oper.push(umexpr[i]);
+    if (umexpr[i] == '+' || umexpr[i] == '-') {
       while (!oper.is_empty() && (oper.top() == '*' || oper.top() == '/'||
         oper.top() == '+' || oper.top() == '-')) {
         pf += oper.top();
         oper.pop();
       }
-      oper.push(expr[i]);
+      oper.push(umexpr[i]);
     }
-    if (expr[i] == ')') {
+    if (umexpr[i] == ')') {
       while (!oper.is_empty() && oper.top() != '(') {
         pf += oper.top();
         oper.pop();
       }
       if (!oper.is_empty() && oper.top() == '(') oper.pop();
     }
-    if (expr[i] == '*' || expr[i] == '/') {
+    if (umexpr[i] == '*' || umexpr[i] == '/') {
       while (!oper.is_empty() && (oper.top() == '*' || oper.top() == '/')) {
         pf += oper.top();
         oper.pop();
       }
-      oper.push(expr[i]);
+      oper.push(umexpr[i]);
     }
   }
   while (!oper.is_empty()) {
@@ -103,20 +113,30 @@ double ArExpression::Compute(const vector<pair<char, double>>& v) const {
   TStack<double> st(expr.size());
   string pfex = GetPostfix();
   for (int i = 0; i < pfex.size(); i++) {
-    if (isalpha(pfex[i]))
+    if (isdigit(pfex[i])) {
+      st.push(pfex[i] - '0');
+    }
+    else if (isalpha(pfex[i])) {
+      bool found = false;
       for (int j = 0; j < v.size(); j++) {
         if (v[j].first == pfex[i]) {
           st.push(v[j].second);
+          found = true;
           break;
         }
-        if(j==v.size()-1) throw invalid_argument("There is no required value");
       }
+      if (!found) throw invalid_argument("There is no required value");
+    }
     else {
       double arg1, arg2; 
-      arg2 = st.top();
-      if (!st.is_empty()) st.pop();
-      arg1 = st.top();
-      if (!st.is_empty()) st.pop();
+      if (!st.is_empty()) {
+        arg2 = st.top();
+        st.pop();
+      }
+      if (!st.is_empty()) {
+        arg1 = st.top();
+        st.pop();
+      }
       switch (pfex[i]) {
         case '+':
           st.push(arg1 + arg2);

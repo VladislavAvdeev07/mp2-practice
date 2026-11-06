@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include "stack.h"
 #include "postfix_form.h"
 
@@ -30,12 +31,15 @@ int main()
     bool flag1 = true;
     while (flag1) {
       string ex;
-      cout << " Введи математическое выражение (только латиница):  ";
+      cout << endl << " Введи математическое выражение (только латиница):  ";
       getline(cin, ex);
       if (ex.empty()) continue;
       ArExpression ae(ex);
       cout << endl << " Постфиксная форма --> " << ae.GetPostfix()<< endl;
       bool flag2 = true;
+      cout << endl << " Будем вычислять значение? (1 - да, 0 - нет) --> " ;
+      cin >> flag2;
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
       while (flag2) {
         cout << endl << " Введи значения для вычисления: (закончил вводить --> ctrl+z) " << endl;
         vector <pair<char, double>> fill;
@@ -46,18 +50,18 @@ int main()
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << endl << " Значение функции в данной точке --> " << fixed << setprecision(2) <<
           ae.Compute(fill)<<endl<<endl;
-        cout << " Продолжаем с этой функцией для других значений? (1 - да, 0 - нет) " << endl;
+        cout << " Продолжаем с этой функцией для других значений? (1 - да, 0 - нет) --> ";
         cin >> flag2;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
       }
-      cout << " Придумаем новую функцию? (1 - да, 0 - нет) " << endl;
+      cout << endl << " Придумаем новую функцию? (1 - да, 0 - нет) --> ";
       cin >> flag1;
       cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
     cout << endl << "============================The End!!!===============================";
 
   }
-  catch (const std::exception& e) {
+  catch (const exception& e) {
     cerr << "Fatal --> " << e.what() << endl;
   }
   return 0; 
